@@ -2,7 +2,7 @@
 
 Application that helps users manage medication schedules and receive real-time alerts for potential drug interactions using FDA data. 
 
-This webpage is hosted [here] (https://medication-manag3r.onrender.com/).
+This webpage is hosted [here](https://medication-manag3r.onrender.com/).
 
 What Does It Do?
 - Add medications with a time to take them
@@ -10,9 +10,9 @@ What Does It Do?
 - Get warnings if two medications shouldn't be taken together, including possible side effects according to FDA data
 
 
+![Added Medication Reminder](medication-management-app/images/Demo_1.jpg)
 
-
-
+![Drug Interaction Warning](medication-management-app/images/Demo_2.jpg)
 
 Tech Stack
 
