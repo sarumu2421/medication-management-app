@@ -1,6 +1,6 @@
-# medication-management-app
-Application that helps users manage medication schedules and receive alerts for potential drug–drug interactions
+# Medication Management 
 
+Application that helps users manage medication schedules and receive alerts for potential drug–drug interactions
 
 What Does It Do?
 - Add medications with a time to take them
