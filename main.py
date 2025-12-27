@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -10,7 +9,6 @@ from database import Medication, get_db, create_tables
 
 app = FastAPI(title="Medication Reminder API with FDA Integration")
 
-# allow frontend to connect 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
