@@ -7,11 +7,12 @@ from datetime import datetime
 import httpx  
 from database import Medication, get_db, create_tables
 
-app = FastAPI(title="Medication Reminder API with FDA Integration")
+app = FastAPI(title="Medication Management")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
