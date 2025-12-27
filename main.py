@@ -58,24 +58,22 @@ def get_all_medications(db: Session = Depends(get_db)):
     meds = db.query(Medication).all()
     return meds
 
-#add a new medication
+#add a new med
 @app.post("/medications", response_model=MedicationResponse)
 def add_medication(med: MedicationCreate, db: Session = Depends(get_db)):
-    # Create new medication object
     new_med = Medication(
         name=med.name,
         time=med.time,
         dosage=med.dosage,
         notes=med.notes
     )
-    
     db.add(new_med)
     db.commit()
     db.refresh(new_med)
     
     return new_med
 
-#delete a medication
+#delete a med
 @app.delete("/medications/{med_id}")
 def delete_medication(med_id: int, db: Session = Depends(get_db)):
     med = db.query(Medication).filter(Medication.id == med_id).first()
@@ -105,8 +103,7 @@ def update_medication(med_id: int, med: MedicationCreate, db: Session = Depends(
     return db_med
 
 
-
-# Check for drug interactions using FDA data
+# check for drug interactions using FDA data
 @app.get("/interactions", response_model=List[InteractionWarning])
 async def check_interactions(db: Session = Depends(get_db)):
 
