@@ -8,9 +8,13 @@ What Does It Do?
 - Get warnings if two medications shouldn't be taken together, including possible side effects according to FDA data
 
 Tech Stack
+
 Backend: Python, FastAPI, SQLite, SQLAlchemy, httpx 
+
 Frontend: React, Vite, CSS3 
+
 External APIs: OpenFDA API - A drug adverse event database
+
 
 Future Ideas
  - Add user login
