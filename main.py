@@ -6,12 +6,13 @@ from typing import List, Optional
 from datetime import datetime
 import httpx  
 from database import Medication, get_db, create_tables
+from itertools import combinations
 
 app = FastAPI(title="Medication Management")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,9 +40,12 @@ class MedicationResponse(BaseModel):
         from_attributes = True
 
 class InteractionWarning(BaseModel):
-    drug_pair: List[str]
+    drug1: str
+    drug2: str
+    reports: int
     severity: str
-    description: str
+    message: str
+    common_reactions: List[str]  # Added
     source: str 
 
 #home page 
@@ -107,12 +111,72 @@ def update_medication(med_id: int, med: MedicationCreate, db: Session = Depends(
 # check for drug interactions using FDA data
 @app.get("/interactions", response_model=List[InteractionWarning])
 async def check_interactions(db: Session = Depends(get_db)):
-
     meds = db.query(Medication).all()
-    
-    # needs at least 2 medications to have an interaction
+
     if len(meds) < 2:
         return []
+
+    warnings = []
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        for m1, m2 in combinations(meds, 2):
+            search_query = (
+                f'patient.drug.medicinalproduct:"{m1.name}" '
+                f'AND patient.drug.medicinalproduct:"{m2.name}"'
+            )
+
+            try:
+                response = await client.get(
+                    "https://api.fda.gov/drug/event.json",
+                    params={"search": search_query, "limit": 10}  # Get more results to analyze reactions
+                )
+
+                if response.status_code == 200:
+                    data = response.json()
+                    total = data.get("meta", {}).get("results", {}).get("total", 0)
+
+                    if total > 0:
+                        # Extract common reactions from the reports
+                        common_reactions = []
+                        if "results" in data:
+                            reaction_counts = {}
+                            for result in data["results"]:
+                                if "patient" in result and "reaction" in result["patient"]:
+                                    for reaction in result["patient"]["reaction"]:
+                                        reaction_name = reaction.get("reactionmeddrapt", "").lower()
+                                        if reaction_name:
+                                            reaction_counts[reaction_name] = reaction_counts.get(reaction_name, 0) + 1
+                            
+                            # Get top 3 most common reactions
+                            sorted_reactions = sorted(reaction_counts.items(), key=lambda x: x[1], reverse=True)
+                            common_reactions = [r[0].title() for r in sorted_reactions[:3]]
+                        
+                        # Determine severity and create user-friendly message
+                        if total > 1000:
+                            severity = "high"
+                            message = f"⚠️ Taking these together has been linked to {total:,} reports of problems (like {', '.join(common_reactions[:2]) if common_reactions else 'adverse reactions'}). Please consult your doctor before taking both of these together."
+                        elif total > 100:
+                            severity = "moderate"
+                            message = f"Caution needed: {total:,} people reported issues when taking these together{f', including {common_reactions[0].lower()}' if common_reactions else ''}. Please consult your doctor before taking both of these together."
+                        else:
+                            severity = "low"
+                            message = f"There are {total} reports of problems when these are taken together. Please consult your doctor before taking both of these together."
+                        
+                        warnings.append({
+                            "drug1": m1.name,
+                            "drug2": m2.name,
+                            "reports": total,
+                            "severity": severity,
+                            "message": message,
+                            "common_reactions": common_reactions,
+                            "source": "OpenFDA"
+                        })
+            except Exception as e:
+                # Log error but continue checking other pairs
+                print(f"Error checking {m1.name} + {m2.name}: {e}")
+                continue
+
+    return warnings
 
 
 #queries FDA database for a specific drug
