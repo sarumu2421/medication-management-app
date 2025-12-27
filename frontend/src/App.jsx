@@ -1,0 +1,69 @@
+import { useEffect, useState } from "react";
+import "./App.css";
+
+const API = "http://127.0.0.1:8000";
+
+export default function App() {
+  const [medications, setMedications] = useState([]);
+  const [name, setName] = useState("");
+  const [time, setTime] = useState("");
+
+  async function loadMedications() {
+    const res = await fetch(`${API}/medications`);
+    const data = await res.json();
+    setMedications(data);
+  }
+
+  async function addMedication() {
+    if (!name || !time) return;
+
+    await fetch(`${API}/medications`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, time }),
+    });
+
+    setName("");
+    setTime("");
+    loadMedications();
+  }
+
+  useEffect(() => {
+    loadMedications();
+  }, []);
+
+  return (
+    <div className="card">
+      <h1>💊 Medication Reminder</h1>
+      <p className="subtitle">
+        Track your medications and get timely reminders
+      </p>
+
+      <div className="form">
+        <input
+          placeholder="Medication name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          type="time"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+        />
+        <button onClick={addMedication}>+ Add</button>
+      </div>
+
+      {medications.length === 0 ? (
+        <p className="empty">No medications added yet</p>
+      ) : (
+        <ul>
+          {medications.map((m) => (
+            <li key={m.id}>
+              {m.name} — {m.time}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
