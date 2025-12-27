@@ -1,6 +1,7 @@
 import aiohttp
 from typing import List, Dict
 from datetime import datetime
+from urllib.parse import quote
 
 async def check_drug_interactions(medications: List[str]) -> Dict:
     """
@@ -27,7 +28,10 @@ async def check_drug_interactions(medications: List[str]) -> Dict:
             for i, med1 in enumerate(medications):
                 for med2 in medications[i+1:]:
                     # Query OpenFDA for drug label information
-                    url = f"https://api.fda.gov/drug/label.json?search=openfda.brand_name:\"{med1}\"+AND+drug_interactions:\"{med2}\"&limit=1"
+                    # Properly encode medication names to prevent URL injection
+                    encoded_med1 = quote(med1)
+                    encoded_med2 = quote(med2)
+                    url = f"https://api.fda.gov/drug/label.json?search=openfda.brand_name:\"{encoded_med1}\"+AND+drug_interactions:\"{encoded_med2}\"&limit=1"
                     
                     try:
                         async with session.get(url) as response:

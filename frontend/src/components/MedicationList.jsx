@@ -90,7 +90,7 @@ function MedicationList({ medications, onMedicationDeleted }) {
                 {medication.dosage && (
                   <p><strong>Dosage:</strong> {medication.dosage}</p>
                 )}
-                <p><strong>Frequency:</strong> {medication.frequency.replace(/_/g, ' ')}</p>
+                <p><strong>Frequency:</strong> {medication.frequency ? medication.frequency.replace(/_/g, ' ') : 'N/A'}</p>
                 <p><strong>Schedule:</strong> {medication.schedule_time}</p>
                 <p className="added-date">
                   <small>Added: {new Date(medication.created_at).toLocaleDateString()}</small>

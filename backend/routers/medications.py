@@ -25,7 +25,7 @@ def create_medication(medication: schemas.MedicationCreate, db: Session = Depend
 @router.get("/", response_model=List[schemas.MedicationResponse])
 def list_medications(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """List all medications"""
-    medications = db.query(models.Medication).filter(models.Medication.is_active == True).offset(skip).limit(limit).all()
+    medications = db.query(models.Medication).filter(models.Medication.is_active.is_(True)).offset(skip).limit(limit).all()
     return medications
 
 @router.get("/{medication_id}", response_model=schemas.MedicationResponse)
