@@ -4,6 +4,8 @@ import "./App.css";
 const API = "http://127.0.0.1:8000";
 
 export default function App() {
+  
+  
   const [medications, setMedications] = useState([]);
   const [name, setName] = useState("");
   const [time, setTime] = useState("");
@@ -12,6 +14,8 @@ export default function App() {
     const res = await fetch(`${API}/medications`);
     const data = await res.json();
     setMedications(data);
+
+    data.forEach(scheduleReminder);
   }
 
   async function addMedication() {
@@ -30,7 +34,41 @@ export default function App() {
 
   useEffect(() => {
     loadMedications();
-  }, []);
+  }, []); 
+
+  useEffect(() => {
+    if ("Notification" in window) {
+      Notification.requestPermission();
+    }
+  }, []); 
+
+  function scheduleReminder(med) {
+    const [hours, minutes] = med.time.split(":").map(Number);
+
+    const now = new Date();
+    const reminder = new Date();
+    reminder.setHours(hours, minutes, 0, 0);
+
+    // if time already passed today, schedule for tomorrow
+    if (reminder <= now) {
+      reminder.setDate(reminder.getDate() + 1);
+    }
+
+    const delay = reminder - now;
+
+    setTimeout(() => {
+      new Notification("Medication Reminder", {
+        body: `Time to take ${med.name}`,
+      });
+    }, delay);
+  } 
+  async function deleteMedication(id) {
+    await fetch(`${API}/medications/${id}`, {
+      method: "DELETE",
+    });
+
+    loadMedications();
+  }
 
   return (
     <div className="card">
@@ -56,10 +94,20 @@ export default function App() {
       {medications.length === 0 ? (
         <p className="empty">No medications added yet</p>
       ) : (
-        <ul>
+        <ul className="med-list">
           {medications.map((m) => (
-            <li key={m.id}>
-              {m.name} — {m.time}
+            <li key={m.id} className="med-item">
+              <span className="med-text">
+                {m.name} — {m.time}
+              </span>
+
+              <button
+                className="delete-btn"
+                onClick={() => deleteMedication(m.id)}
+                aria-label="Delete medication"
+              >
+                ✕
+              </button>
             </li>
           ))}
         </ul>
