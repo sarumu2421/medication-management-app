@@ -10,9 +10,9 @@ What Does It Do?
 - Get warnings if two medications shouldn't be taken together, including possible side effects according to FDA data
 
 
-![Added Medication Reminder](medication-management-app/images/Demo_1.jpg)
+![Added a Medication Reminder](images/Demo_1.jpg)
 
-![Drug Interaction Warning](medication-management-app/images/Demo_2.jpg)
+![Drug Interaction Warning](images/Demo_2.jpg)
 
 Tech Stack
 
