@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 import httpx  
+import os
 from database import Medication, get_db, create_tables
 from itertools import combinations
 
@@ -291,4 +292,5 @@ async def check_fda_interaction(drug1: str, drug2: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
