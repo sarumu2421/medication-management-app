@@ -3,11 +3,6 @@ import "./App.css";
 
 import { API_URL } from "./config";
 
-async function loadMedications() {
-  const res = await fetch(`${API_URL}/medications`);
-  return await res.json();
-}
-
 // icons
 const PillIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -111,7 +106,7 @@ export default function App() {
 
   async function loadMedications() {
     try {
-      const res = await fetch(`${API}/medications`);
+      const res = await fetch(`${API_URL}/medications`);
       const data = await res.json();
       setMedications(data);
 
@@ -124,7 +119,7 @@ export default function App() {
 
   async function loadInteractions() {
     try {
-      const res = await fetch(`${API}/interactions`);
+      const res = await fetch(`${API_URL}/interactions`);
       const data = await res.json();
       console.log("Interaction warnings received:", data);
       setWarnings(data);
@@ -137,7 +132,7 @@ export default function App() {
   async function addMedication() {
     if (!name || !time) return;
 
-    await fetch(`${API}/medications`, {
+    await fetch(`${API_URL}/medications`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, time }),
@@ -218,7 +213,7 @@ export default function App() {
   }
 
   async function deleteMedication(id) {
-    await fetch(`${API}/medications/${id}`, {
+    await fetch(`${API_URL}/medications/${id}`, {
       method: "DELETE",
     });
 
@@ -226,7 +221,7 @@ export default function App() {
   } 
 
   async function updateMedication(id) {
-    await fetch(`${API}/medications/${id}`, {
+    await fetch(`${API_URL}/medications/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
