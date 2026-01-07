@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
-const API = import.meta.env.VITE_API_URL;
+import { API_URL } from "./config";
+
+async function loadMedications() {
+  const res = await fetch(`${API_URL}/medications`);
+  return await res.json();
+}
 
 // icons
 const PillIcon = () => (
